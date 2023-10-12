@@ -1,5 +1,3 @@
 [workspace]
-members = [
-    "tcpserver","tcpclient", "http", "httpserver",
-]
-
+members = ["tcpserver", "tcpclient", "http", "httpserver"]
+resolver = "2"
