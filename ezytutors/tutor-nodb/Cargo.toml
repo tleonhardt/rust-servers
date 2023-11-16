@@ -11,8 +11,15 @@ name = "basic-server"
 [[bin]]
 name = "tutor-service"
 
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
 [dependencies]
+#Actix web framework and run-time
 actix-web = "4.4.0"
 actix-rt = "2.9.0"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+# Data serialization library
+serde = { version = "1.0.192", features = ["derive"] }
+
+# Other utilities
+chrono = { version = "0.4.31", features = ["serde"] }
