@@ -1,3 +1,3 @@
 [workspace]
-members = ["tutor-nodb"]
+members = ["tutor-nodb", "tutor-db"]
 resolver = "2"
