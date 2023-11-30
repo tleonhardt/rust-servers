@@ -1,7 +1,9 @@
 [package]
 name = "tutor-db"
 version = "0.1.0"
+authors = ["peshwar9"]
 edition = "2021"
+default-run = "iter3"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
@@ -13,6 +15,7 @@ actix-rt = "2.9.0"
 # Environment variable access libraries
 dotenv = "0.15.0"
 
+# Database access
 sqlx = { version = "0.7.3", default_features = false, features = [
     "postgres",
     "runtime-tokio-native-tls",
@@ -20,7 +23,6 @@ sqlx = { version = "0.7.3", default_features = false, features = [
     "chrono",
 ] }
 
-# Postgres access library
 # Data serialization library
 serde = { version = "1.0.193", features = ["derive"] }
 
