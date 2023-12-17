@@ -31,7 +31,11 @@ pub async fn get_courses_for_tutor_db(
     }
 }
 
-pub async fn get_course_details_db(pool: &PgPool, tutor_id: i32, course_id: i32) -> Course {
+pub async fn get_course_details_db(
+    pool: &PgPool,
+    tutor_id: i32,
+    course_id: i32,
+) -> Result<Course, EzyTutorError> {
     // Prepare SQL statement
     let course_row = sqlx::query!(
         "SELECT tutor_id, course_id, course_name, posted_time FROM
@@ -40,15 +44,17 @@ pub async fn get_course_details_db(pool: &PgPool, tutor_id: i32, course_id: i32)
         course_id
     )
     .fetch_one(pool) // Execute the query - note the use of fetch_one to get only 1 row
-    .await // We are making an asynchronous call to the DB
-    .unwrap(); // DB call could fail
+    .await; // We are making an asynchronous call to the DB
 
-    // Execute query
-    Course {
-        course_id: course_row.course_id,
-        tutor_id: course_row.tutor_id,
-        course_name: course_row.course_name.clone(),
-        posted_time: Some(chrono::NaiveDateTime::from(course_row.posted_time.unwrap())),
+    if let Ok(course_row) = course_row {
+        Ok(Course {
+            course_id: course_row.course_id,
+            tutor_id: course_row.tutor_id,
+            course_name: course_row.course_name.clone(),
+            posted_time: Some(chrono::NaiveDateTime::from(course_row.posted_time.unwrap())),
+        })
+    } else {
+        Err(EzyTutorError::NotFound("Course id not found".into()))
     }
 }
 

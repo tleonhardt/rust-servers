@@ -2,7 +2,6 @@ use super::db_access::*;
 use super::errors::EzyTutorError;
 use super::models::Course;
 use super::state::AppState;
-use std::convert::TryFrom;
 
 use actix_web::{web, HttpResponse};
 
@@ -26,13 +25,12 @@ pub async fn get_courses_for_tutor(
 
 pub async fn get_course_details(
     app_state: web::Data<AppState>,
-    params: web::Path<(i32, i32)>,
-) -> HttpResponse {
-    let tuple = params;
-    let tutor_id: i32 = i32::try_from(tuple.0).unwrap();
-    let course_id: i32 = i32::try_from(tuple.1).unwrap();
-    let course = get_course_details_db(&app_state.db, tutor_id, course_id).await;
-    HttpResponse::Ok().json(course)
+    path: web::Path<(i32, i32)>,
+) -> Result<HttpResponse, EzyTutorError> {
+    let (tutor_id, course_id) = path.into_inner();
+    get_course_details_db(&app_state.db, tutor_id, course_id)
+        .await
+        .map(|course| HttpResponse::Ok().json(course))
 }
 
 pub async fn post_new_course(
@@ -80,7 +78,7 @@ mod tests {
             db: pool,
         });
         let params: web::Path<(i32, i32)> = web::Path::from((1, 2));
-        let resp = get_course_details(app_state, params).await;
+        let resp = get_course_details(app_state, params).await.unwrap();
         assert_eq!(resp.status(), StatusCode::OK);
     }
 
