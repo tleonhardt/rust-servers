@@ -1,15 +1,19 @@
+use super::errors::EzyTutorError;
 use super::models::Course;
 use sqlx::postgres::PgPool;
 
-pub async fn get_courses_for_tutor_db(pool: &PgPool, tutor_id: i32) -> Vec<Course> {
+pub async fn get_courses_for_tutor_db(
+    pool: &PgPool,
+    tutor_id: i32,
+) -> Result<Vec<Course>, EzyTutorError> {
     // Prepare SQL statement
     let course_rows = sqlx::query!(
         "SELECT tutor_id, course_id, course_name, posted_time FROM ezy_course_c4 where tutor_id = $1",
         tutor_id
-    ).fetch_all(pool).await.unwrap(); // Execute the query
+    ).fetch_all(pool).await?; // Execute the query
 
-    // Extract results into a Rust vector and return it
-    course_rows
+    // Extract results into a Rust vector
+    let courses: Vec<Course> = course_rows
         .iter() // Convert the retrieved DB records into a Rust iterator
         .map(|course_row| Course {
             course_id: course_row.course_id,
@@ -17,7 +21,14 @@ pub async fn get_courses_for_tutor_db(pool: &PgPool, tutor_id: i32) -> Vec<Cours
             course_name: course_row.course_name.clone(),
             posted_time: Some(chrono::NaiveDateTime::from(course_row.posted_time.unwrap())),
         })
-        .collect() // Accumulate the Course structs returned from the map() into a Rust Vec
+        .collect(); // Accumulate the Course structs returned from the map() into a Rust Vec
+
+    match courses.len() {
+        0 => Err(EzyTutorError::NotFound(
+            "Courses not found for tutor".into(),
+        )),
+        _ => Ok(courses),
+    }
 }
 
 pub async fn get_course_details_db(pool: &PgPool, tutor_id: i32, course_id: i32) -> Course {
