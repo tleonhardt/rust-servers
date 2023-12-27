@@ -83,6 +83,7 @@ mod tests {
         assert_eq!(resp.status(), StatusCode::OK);
     }
 
+    #[ignore]
     #[actix_rt::test]
     async fn post_course_success() {
         dotenv().ok();

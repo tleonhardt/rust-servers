@@ -1,5 +1,5 @@
-use super::errors::EzyTutorError;
-use super::models::Course;
+use crate::errors::EzyTutorError;
+use crate::models::course::Course;
 use sqlx::postgres::PgPool;
 
 pub async fn get_courses_for_tutor_db(
