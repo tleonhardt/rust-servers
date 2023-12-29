@@ -41,6 +41,7 @@ async fn main() -> io::Result<()> {
             .app_data(shared_data.clone()) // Inject the app state into the instance
             .configure(general_routes) // Configure the routes
             .configure(course_routes)
+            .configure(tutor_routes)
     };
 
     //Start HTTP server
