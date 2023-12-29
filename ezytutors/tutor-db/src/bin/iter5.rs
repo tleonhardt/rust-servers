@@ -39,6 +39,10 @@ async fn main() -> io::Result<()> {
     let app = move || {
         App::new()
             .app_data(shared_data.clone()) // Inject the app state into the instance
+            .app_data(web::JsonConfig::default().error_handler(|_err, _req| {
+                errors::EzyTutorError::InvalidInput("Please provide valid Json input".to_string())
+                    .into()
+            }))
             .configure(general_routes) // Configure the routes
             .configure(course_routes)
             .configure(tutor_routes)

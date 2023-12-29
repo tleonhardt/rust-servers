@@ -50,3 +50,78 @@ pub async fn delete_tutor(
         .await
         .map(|tutor| HttpResponse::Ok().json(tutor))
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use actix_web::http::StatusCode;
+    use dotenv::dotenv;
+    use sqlx::postgres::PgPool;
+    use std::env;
+    use std::sync::Mutex;
+
+    #[actix_rt::test]
+    async fn get_all_tutors_success_test() {
+        dotenv().ok();
+        let database_url = env::var("DATABASE_URL").expect("DATABASE_URL is not set in .env file");
+        let pool: PgPool = PgPool::connect(&database_url).await.unwrap();
+        let app_state: web::Data<AppState> = web::Data::new(AppState {
+            health_check_response: "".to_string(),
+            visit_count: Mutex::new(0),
+            db: pool,
+        });
+        let resp = get_all_tutors(app_state).await.unwrap();
+        assert_eq!(resp.status(), StatusCode::OK);
+    }
+
+    #[actix_rt::test]
+    async fn get_tutor_detail_success_test() {
+        dotenv().ok();
+        let database_url = env::var("DATABASE_URL").expect("DATABASE_URL is not set in .env file");
+        let pool: PgPool = PgPool::connect(&database_url).await.unwrap();
+        let app_state: web::Data<AppState> = web::Data::new(AppState {
+            health_check_response: "".to_string(),
+            visit_count: Mutex::new(0),
+            db: pool,
+        });
+        let parameters: web::Path<i32> = web::Path::from(1);
+        let resp = get_tutor_details(app_state, parameters).await.unwrap();
+        assert_eq!(resp.status(), StatusCode::OK);
+    }
+
+    #[ignore]
+    #[actix_rt::test]
+    async fn post_tutor_success_test() {
+        dotenv().ok();
+        let database_url = env::var("DATABASE_URL").expect("DATABASE_URL is not set in .env file");
+        let pool: PgPool = PgPool::connect(&database_url).await.unwrap();
+        let app_state: web::Data<AppState> = web::Data::new(AppState {
+            health_check_response: "".to_string(),
+            visit_count: Mutex::new(0),
+            db: pool,
+        });
+        let new_tutor_msg = NewTutor {
+            tutor_name: "Third tutor".into(),
+            tutor_pic_url: "http://tutor.s3.com/ssdfds".into(),
+            tutor_profile: "Experienced tutor in Statistics".into(),
+        };
+        let tutor_param = web::Json(new_tutor_msg);
+        let resp = post_new_tutor(tutor_param, app_state).await.unwrap();
+        assert_eq!(resp.status(), StatusCode::OK);
+    }
+    // Delete tutor
+    #[actix_rt::test]
+    async fn delete_tutor_success_test() {
+        dotenv().ok();
+        let database_url = env::var("DATABASE_URL").expect("DATABASE_URL is not set in .env file");
+        let pool: PgPool = PgPool::connect(&database_url).await.unwrap();
+        let app_state: web::Data<AppState> = web::Data::new(AppState {
+            health_check_response: "".to_string(),
+            visit_count: Mutex::new(0),
+            db: pool,
+        });
+        let parameters: web::Path<i32> = web::Path::from(2);
+        let resp = delete_tutor(app_state, parameters).await.unwrap();
+        assert_eq!(resp.status(), StatusCode::OK);
+    }
+}
